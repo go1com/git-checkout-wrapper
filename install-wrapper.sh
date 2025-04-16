@@ -3,7 +3,7 @@
 echo "📥 Installing Git Checkout Wrapper..."
 
 INSTALL_DIR="$HOME/.git-checkout-wrapper"
-REPO_URL="git@github.com:your-org/git-checkout-wrapper.git"
+REPO_URL="git@github.com:go1com/git-checkout-wrapper.git"
 
 # 1. Clone the repo
 if [ -d "$INSTALL_DIR" ]; then
@@ -24,10 +24,10 @@ if [ ! -f ".env" ]; then
     echo "✅ Created .env from example"
 fi
 
-# 3. Make script executable
+# 3. Make wrapper executable
 chmod +x git-checkout-wrapper.sh
 
-# 4. Add alias to shell config
+# 4. Add alias
 SHELL_CONFIG="$HOME/.zshrc"
 [ -f "$HOME/.bashrc" ] && SHELL_CONFIG="$HOME/.bashrc"
 
@@ -38,8 +38,8 @@ else
     echo "⚠️ Alias already exists in $SHELL_CONFIG"
 fi
 
-# 5. Reload shell
-echo "🔄 Reloading shell config..."
-source "$SHELL_CONFIG"
-
-echo "🎉 Done! You can now use: git checkout -b"
+# 5. Safe final message
+echo ""
+echo "🎉 Installation complete!"
+echo "👉 Please restart your terminal or run: source $SHELL_CONFIG"
+echo "✨ After that, try: git checkout -b"
