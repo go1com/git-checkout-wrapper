@@ -9,7 +9,7 @@ fi
 JIRA_BASE="${JIRA_URL:-https://yourcompany.atlassian.net}"
 
 # Get GitHub username (fallback = anonymous)
-GIT_USER=$(git config user.name | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+GIT_USER=$(git config user.name 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
 GIT_USER=${GIT_USER:-anonymous}
 
 # Prompt for branch type
@@ -29,28 +29,28 @@ select_type() {
     done
 }
 
-# Intercept `git checkout -b` (no branch name provided)
-if [[ "$1" == "checkout" && "$2" == "-b" && -z "$3" ]]; then
+# Handle interactive flow only for: git checkout -b (no branch name)
+if [[ "$1" == "checkout" && "$2" == "-b" && "$#" -lt 3 ]]; then
     echo "🧠 Starting interactive Jira branch creation..."
 
     type=$(select_type)
 
     read -p "🪪 Jira Ticket ID (e.g., PANDA-123): " ticket
-    read -p "📝 Short description: " descRaw
+    ticket=$(echo "$ticket" | xargs) # trim spaces
 
-    # Normalize description to lowercase and dash-case
+    read -p "📝 Short description: " descRaw
     desc=$(echo "$descRaw" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+
     branch="${type}/${GIT_USER}/${ticket}_${desc}"
 
     echo "✅ Creating branch: $branch"
     git checkout -b "$branch"
 
-    # Compose and create an empty commit
     commit_msg="${ticket}: ${descRaw}\n\nRelated ticket: ${JIRA_BASE}/browse/${ticket}"
     git commit --allow-empty -m "$(echo -e "$commit_msg")"
     echo "✅ Created empty commit with message."
 
 else
-    # Fallback: use Git as usual
+    # Fallback to real git
     command git "$@"
 fi
